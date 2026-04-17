@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // Change to your actual Docker Hub username
-        DOCKER_IMAGE = 'diyasicily/food-delivery-demo'
+        DOCKER_IMAGE = 'diya1sicily/food-delivery-demo'
         // These refer to Credentials IDs created in Jenkins (explained below)
         DOCKER_CRED_ID = 'docker-hub-creds' 
         K8S_CRED_ID = 'kubeconfig-file'
