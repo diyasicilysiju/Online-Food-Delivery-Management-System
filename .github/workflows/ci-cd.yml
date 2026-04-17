@@ -5,7 +5,7 @@ on:
     branches: [ main ]
 
 env:
-  DOCKER_IMAGE: your-dockerhub-username/food-delivery-demo
+  DOCKER_IMAGE: diya1sicily/food-delivery-demo
 
 jobs:
   build-and-test:

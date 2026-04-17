@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
         - name: food-delivery-demo
-          image: diyasicily1/food-delivery-demo:latest
+          image: diya1sicily/food-delivery-demo:latest
           ports:
             - containerPort: 8080
