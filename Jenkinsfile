@@ -29,8 +29,8 @@ pipeline {
 
         stage('Deploy to Kubernetes') {
             steps {
-                // Must use bat for Windows
-                bat "kubectl set image deployment/food-delivery-demo food-delivery-demo=${DOCKER_IMAGE}:%BUILD_NUMBER%"
+               bat "kubectl set image deployment/food-delivery-demo food-delivery-demo=diyasicily/food-delivery-demo:latest"
+                bat "kubectl rollout status deployment/food-delivery-demo"
             }
         }
     }
