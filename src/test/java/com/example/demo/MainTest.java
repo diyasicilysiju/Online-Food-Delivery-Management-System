@@ -1,16 +1,26 @@
-package com.example;
+package com.example.demo;
 
 import org.junit.jupiter.api.Test;
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.test.web.server.LocalServerPort;
 
-public class MainTest {
+import static org.assertj.core.api.Assertions.assertThat;
+
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+class DemoApplicationTests {
+
+    @LocalServerPort
+    private int port;
+
+    @Autowired
+    private TestRestTemplate restTemplate;
+
     @Test
-    public void testMainPrintsCorrectMessage() {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(out));
-        Main.main(new String[]{});
-        assertEquals("Food Delivery System is running!\n", out.toString());
+    void helloEndpointReturnsMessage() {
+        String url = "http://localhost:" + port + "/api/hello";
+        String response = restTemplate.getForObject(url, String.class);
+        assertThat(response).isEqualTo("Food Delivery Demo is running!");
     }
 }
