@@ -4,34 +4,28 @@ pipeline {
     environment {
         // Change to your actual Docker Hub username
         DOCKER_IMAGE = 'diya1sicily/food-delivery-demo'
-        // These refer to Credentials IDs created in Jenkins (explained below)
-        DOCKER_CRED_ID = 'docker-hub-creds' 
-        K8S_CRED_ID = 'kubeconfig-file'
+        // This credential ID must exist in Jenkins: Manage Jenkins -> Credentials
+        DOCKER_CRED_ID = 'docker-hub-cred' 
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                // Pulls code from your GitHub repository
-                checkout scm
-            }
-        }
-
         stage('Build & Test') {
             steps {
-                // Runs Maven build and tests
-                sh 'mvn clean package'
+                // Use 'bat' for Windows
+                bat 'mvn clean package'
             }
         }
 
         stage('Docker Build & Push') {
             steps {
                 script {
-                    // Logs in to Docker Hub and builds/pushes the image
-                    docker.withRegistry("https://index.docker.io/v1/", DOCKER_CRED_ID) {
-                        def appImage = docker.build("${DOCKER_IMAGE}:${env.BUILD_NUMBER}")
-                        appImage.push()
-                        appImage.push("latest")
+                    // Login and build using batch commands
+                    withCredentials([usernamePassword(credentialsId: DOCKER_CRED_ID, passwordVariable: 'PASS', usernameVariable: 'USER')]) {
+                        bat "docker login -u %USER% -p %PASS%"
+                        // Using double quotes so Jenkins injects the build number
+                        bat "docker build -t ${DOCKER_IMAGE}:${env.BUILD_NUMBER} -t ${DOCKER_IMAGE}:latest ."
+                        bat "docker push ${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
+                        bat "docker push ${DOCKER_IMAGE}:latest"
                     }
                 }
             }
@@ -39,10 +33,9 @@ pipeline {
 
         stage('Deploy to Kubernetes') {
             steps {
-                // Uses the kubeconfig credential to talk to your cluster
-                withCredentials([file(credentialsId: K8S_CRED_ID, variable: 'KUBECONFIG')]) {
-                    sh "kubectl set image deployment/food-delivery-demo food-delivery-demo=${DOCKER_IMAGE}:${env.BUILD_NUMBER} --kubeconfig=$KUBECONFIG"
-                }
+                // Runs kubectl directly. 
+                // This assumes 'kubectl' is in your system PATH and configured locally
+                bat "kubectl set image deployment/food-delivery-demo food-delivery-demo=${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
             }
         }
     }
